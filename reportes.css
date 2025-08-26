@@ -1,0 +1,64 @@
+body.background {
+    background-image: url('img/billar-valencia-980.jpg'); /* Fondo */
+    background-size: cover;
+}
+
+.container {
+    background: rgba(255, 255, 255, 0.8);
+    padding: 20px;
+    border-radius: 8px;
+    max-width: 800px;
+    margin: auto;
+}
+
+.historial-table, .report-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.historial-table th, .historial-table td,
+.report-table th, .report-table td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: center;
+    font-size: 14px;
+}
+
+.historial-table th, .report-table th {
+    background-color: #f4f4f4;
+    color: #333;
+}
+
+.historial-table tr:nth-child(even), 
+.report-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.historial-table tr:hover,
+.report-table tr:hover {
+    background-color: #f1f1f1;
+}
+
+.page-title {
+    text-align: center;
+    font-size: 2em;
+    color: #333;
+}
+
+.btn-export, .btn-clear {
+    display: inline-block;
+    background-color: #ff5733;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 20px;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+}
+
+.btn-export:hover, .btn-clear:hover {
+    background-color: #e74c3c;
+}

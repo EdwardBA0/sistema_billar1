@@ -1,0 +1,187 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat&display=swap');
+
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+body {
+    display: flex;
+}
+
+/* #region nav */
+
+.nav {
+    height: 100vh;
+    width: 10rem;
+    padding: .8rem; 
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    background-color: rgba(129, 105, 62, 0.897);
+}
+
+.usuario {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.texts-user {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+}
+
+.nav__list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+}
+
+.cta {
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    align-items: center;
+    gap: 0.1rem;
+    flex-direction: column;
+}
+
+.cta:hover {
+    text-decoration: underline;
+    font-weight: bold;
+}
+
+.logout {
+    margin: 0 auto;
+}
+
+.icon-user {
+    height: 5rem;
+}
+
+.icons {
+    width: 2.7rem;
+}
+
+/* #endregion nav */
+
+/* #region main */
+
+main {
+    position: relative;
+    background-image: url(img/agreen-kZDmVMr68vE-unsplash.jpg);
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    height: 100vh;
+    width: 100%;
+    font-family: "Montserrat", sans-serif;
+    overflow: auto;
+}
+
+.container {
+    max-width: 1200px;
+    margin: auto;
+    padding: 10px 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+h1, h2 {
+    color: #e9e9e9;
+    text-align: center;
+    font-family: "Montserrat", sans-serif;
+    letter-spacing: 1px;
+}
+
+.tables {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Ajuste dinámico según el número de mesas */
+    gap: 10px;
+    margin-top: 1rem;
+}
+
+.table {
+    background: #20202063;
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+    transition: background 0.3s;
+    text-align: center;
+    backdrop-filter: blur(10px);
+}
+
+.table h3 {
+    margin: 0 0 10px;
+}
+
+button {
+    background: #ffffff;
+    color: #4CAF50;
+    border: none;
+    padding: 15px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s;
+    width: 90%;
+    margin: 0 auto;
+    margin-top: 1rem;
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+button:hover {
+    background: #e0e0e0;
+}
+
+.status {
+    margin-top: 10px;
+    font-weight: bold;
+    font-size: 1.1em;
+    line-height: 1.5;
+}
+
+.rental-form {
+    margin-top: 30px;
+    text-align: center;
+    background: #f9f9f9;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.rental-form input {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    margin-right: 10px;
+    width: calc(30% - 10px);
+}
+
+.rental-form button {
+    background: #4CAF50;
+    color: white;
+}
+
+.rental-form button:hover {
+    background: #45a049;
+}
+
+.img__mesas {
+    width: 90%;
+    height: auto;
+    border-radius: 5px;
+}
+
+@media (max-width: 800px) {
+    .tables {
+        grid-template-columns: repeat(2, 1fr); /* Ajuste para pantallas pequeñas */
+    }
+}
+
+/* #endregion main */

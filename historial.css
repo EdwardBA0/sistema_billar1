@@ -1,0 +1,45 @@
+
+body.background {
+    background-image: url('img/billar-valencia-980.jpg'); /* Same background as index */
+    background-size: cover;
+}
+
+.container {
+    background: rgba(255, 255, 255, 0.8);
+    padding: 20px;
+    border-radius: 8px;
+    max-width: 800px;
+    margin: auto;
+}
+
+.historial-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.historial-table th, .historial-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: center;
+}
+
+.page-title {
+    text-align: center;
+    font-size: 2em;
+    color: #333;
+}
+.btn-clear {
+    margin-top: 20px;
+    padding: 10px 20px;
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.btn-clear:hover {
+    background-color: #c0392b;
+}
+
