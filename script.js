@@ -18,9 +18,9 @@ function toggleRental(tableNumber) {
         finishRental(tableNumber);
         tableElement.style.backgroundColor = "#20202063";
     } else {
-        let rentalTime = prompt("Ingresa el tiempo de alquiler (ej. 1h, 30m, o 'libre' para tiempo libre):");
-
-        if (!rentalTime) return;
+        // Abrir modal en lugar de usar prompt
+        openRentalModal(tableNumber);
+        return;
 
         let timeInSeconds = 0;
 
@@ -187,6 +187,80 @@ function formatHoraInicio(horaInicio) {
     const date = new Date(horaInicio); // La fecha en UTC
     const localDate = new Date(date.getTime() - date.getTimezoneOffset() * 60000); // Ajustar a la hora local
     return localDate.toLocaleTimeString();
+}
+
+
+// === Modal de alquiler ===
+let currentTable = null;
+
+function openRentalModal(tableNumber) {
+    currentTable = tableNumber;
+
+    //  Reseteamos los campos a 0 cada vez que se abre
+    document.getElementById('hoursInput').value = "";
+    document.getElementById('minutesInput').value = "";
+
+    document.getElementById('rentalModal').style.display = 'flex';
+}
+
+function closeRentalModal() {
+    document.getElementById('rentalModal').style.display = 'none';
+    currentTable = null;
+}
+
+// Cancelar
+document.getElementById('modalCancel').addEventListener('click', closeRentalModal);
+
+// Aceptar
+document.getElementById('modalAccept').addEventListener('click', () => {
+    const hours = parseInt(document.getElementById('hoursInput').value) || 0;
+    const minutes = parseInt(document.getElementById('minutesInput').value) || 0;
+
+    if ((!hours && !minutes) || !currentTable) {
+        alert("Por favor ingresa al menos horas o minutos.");
+        return;
+    }
+
+    const totalSeconds = (hours * 3600) + (minutes * 60);
+
+    startRental(currentTable, totalSeconds);
+    closeRentalModal();
+});
+
+// === Inicia el alquiler ===
+function startRental(tableNumber, timeInSeconds) {
+    const statusElement = document.querySelector(`#table${tableNumber} .status`);
+    const timerElement = document.getElementById(`timer${tableNumber}`);
+    const button = document.querySelector(`#table${tableNumber} button`);
+    const tableElement = document.getElementById(`table${tableNumber}`);
+
+    const startTime = new Date();
+    rentals[tableNumber] = { startTime, rentalTime: timeInSeconds, totalElapsed: 0 };
+
+    fetch('update_mesa.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            tableNumber,
+            estado: 'alquilada',
+            hora_inicio: startTime.toISOString()
+        })
+    });
+
+    statusElement.textContent = `Alquilada desde: ${startTime.toLocaleTimeString()}`;
+    button.textContent = "Finalizar";
+    tableElement.style.backgroundColor = "rgba(255, 0, 0, 0.377)";
+
+    timers[tableNumber] = setInterval(() => {
+        const currentTime = new Date();
+        const elapsed = Math.round((currentTime - startTime) / 1000);
+        rentals[tableNumber].totalElapsed = elapsed;
+        timerElement.textContent = formatTime(elapsed);
+
+        if (timeInSeconds !== Infinity && elapsed >= timeInSeconds) {
+            finishRental(tableNumber);
+        }
+    }, 1000);
 }
 
 
