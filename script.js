@@ -22,55 +22,6 @@ function toggleRental(tableNumber) {
         openRentalModal(tableNumber);
         return;
 
-        let timeInSeconds = 0;
-
-        if (rentalTime.toLowerCase() === 'libre') {
-            timeInSeconds = Infinity;
-        } else {
-            const hoursMatch = rentalTime.match(/(\d+)h/);
-            const minutesMatch = rentalTime.match(/(\d+)m/);
-
-            if (hoursMatch) {
-                timeInSeconds += parseInt(hoursMatch[1]) * 3600;
-            }
-            if (minutesMatch) {
-                timeInSeconds += parseInt(minutesMatch[1]) * 60;
-            }
-
-            if (timeInSeconds === 0) {
-                alert("Formato de tiempo no válido. Usa '1h', '30m' o 'libre'.");
-                return;
-            }
-        }
-
-        const startTime = new Date();
-        rentals[tableNumber] = { startTime, rentalTime: timeInSeconds, totalElapsed: 0 };
-
-        // Actualizar estado en la base de datos
-        fetch('update_mesa.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                tableNumber,
-                estado: 'alquilada',
-                hora_inicio: startTime.toISOString()
-            })
-        });
-
-        statusElement.textContent = `Alquilada desde: ${startTime.toLocaleTimeString()}`;
-        button.textContent = "Finalizar";
-        tableElement.style.backgroundColor = "rgba(255, 0, 0, 0.377)";
-
-        timers[tableNumber] = setInterval(() => {
-            const currentTime = new Date();
-            const elapsed = Math.round((currentTime - startTime) / 1000);
-            rentals[tableNumber].totalElapsed = elapsed;
-            timerElement.textContent = formatTime(elapsed);
-
-            if (timeInSeconds !== Infinity && elapsed >= timeInSeconds) {
-                finishRental(tableNumber);
-            }
-        }, 1000);
     }
 }
 
