@@ -96,6 +96,28 @@ try {
             </div>
         </div>
     </main>
+    <!-- Modal para ingresar tiempo -->
+    <div id="rentalModal" class="modal">
+        <div class="modal-content">
+            <div class="sub-modal">
+               <h2>ALQUILAR MESA</h2>
+
+               <div class="cuadroshm">
+                    <label for="hoursInput">H:</label>
+                    <input type="number" id="hoursInput" min="0" value="0">
+
+                    <label for="minutesInput">M:</label>
+                    <input type="number" id="minutesInput" min="0" max="59" value="0">
+               </div>
+
+            </div>
+
+            <div class="modal-actions">
+                <button id="modalAccept" class="buton"><span>Iniciar</span></button>
+                <button id="modalCancel" class="buton"><span>Cancelar</span></button>
+            </div>
+        </div>
+    </div>
     <script src="script.js"></script>
 </body>
 </html>
