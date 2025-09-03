@@ -1,3 +1,16 @@
+<?php
+session_start();
+if (!isset($_SESSION['username'])) { 
+    header('Location: login.php'); 
+    exit; 
+} 
+    $role = $_SESSION['role'];
+    
+    if ($role == 'trabajador'){
+        header('Location: index.php');
+    }
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>

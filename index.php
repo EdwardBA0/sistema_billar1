@@ -77,7 +77,7 @@ try {
             <?php } ?>
         </ul>
         <div class="logout">
-            <a href="login.php"><img class="icons" src="Icons/logout_icon.png" alt=""></a>
+            <a href="cerrarSesion.php"><img class="icons" src="Icons/logout_icon.png" alt=""></a>
         </div>
     </nav>
     <main>
