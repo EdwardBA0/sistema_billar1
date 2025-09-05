@@ -1,0 +1,26 @@
+@startuml
+left to right direction
+
+actor Administrador
+actor Empleado
+
+package "Requerimientos Funcionales (RF)" {
+  usecase RF01 as "RF-01\nGestionar usuarios y roles"
+  usecase RF02 as "RF-02\nConfigurar tarifas"
+  usecase RF03 as "RF-03\nEstado de mesas"
+  usecase RF04 as "RF-04\nIniciar/Finalizar sesión"
+  usecase RF05 as "RF-05\nPausar/Reanudar sesión"
+  usecase RF06 as "RF-06\nCalcular costos"
+  usecase RF07 as "RF-07\nGuardar historial"
+  usecase RF08 as "RF-08\nReportes PDF"
+}
+
+Administrador --> RF01
+Administrador --> RF02
+Administrador --> RF08
+Empleado --> RF03
+Empleado --> RF04
+Empleado --> RF05
+Empleado --> RF06
+Empleado --> RF07
+@enduml

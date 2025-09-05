@@ -1,0 +1,23 @@
+@startuml
+actor Administrador
+actor Empleado
+actor Cliente
+
+rectangle "Sistema Zona Billar" {
+  component "Gestión de Usuarios y Roles" as C1
+  component "Gestión de Mesas" as C2
+  component "Control de Tiempo" as C3
+  component "Cálculo de Costos" as C4
+  component "Historial de Sesiones" as C5
+  component "Generación de Reportes" as C6
+}
+
+Administrador --> C1
+Administrador --> C6
+Empleado --> C2
+Empleado --> C3
+Empleado --> C4
+Empleado --> C5
+Cliente --> C3
+Cliente --> C4
+@enduml

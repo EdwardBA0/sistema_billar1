@@ -1,0 +1,37 @@
+@startuml
+package "Requerimientos Funcionales" {
+  class RF01 as "RF-01\nGestionar usuarios"
+  class RF02 as "RF-02\nConfigurar tarifas"
+  class RF03 as "RF-03\nEstado de mesas"
+  class RF04 as "RF-04\nIniciar/Finalizar sesión"
+  class RF05 as "RF-05\nPausar/Reanudar sesión"
+  class RF06 as "RF-06\nCalcular costos"
+  class RF07 as "RF-07\nHistorial de sesiones"
+  class RF08 as "RF-08\nReportes PDF"
+}
+
+package "Requerimientos No Funcionales" {
+  class RNF01 as "RNF-01\nUsabilidad"
+  class RNF02 as "RNF-02\nRendimiento"
+  class RNF03 as "RNF-03\nSeguridad"
+  class RNF04 as "RNF-04\nEscalabilidad"
+  class RNF05 as "RNF-05\nPortabilidad y Responsividad"
+  class RNF06 as "RNF-06\nMantenibilidad"
+}
+
+RF01 -down-> RNF01 : satisfy
+RF01 -down-> RNF03 : satisfy
+RF01 -down-> RNF06 : satisfy
+RF02 -down-> RNF01 : satisfy
+RF02 -down-> RNF04 : satisfy
+RF03 -down-> RNF01 : satisfy
+RF03 -down-> RNF05 : satisfy
+RF04 -down-> RNF02 : satisfy
+RF04 -down-> RNF03 : satisfy
+RF05 -down-> RNF02 : satisfy
+RF06 -down-> RNF01 : satisfy
+RF06 -down-> RNF03 : satisfy
+RF07 -down-> RNF06 : satisfy
+RF08 -down-> RNF04 : satisfy
+RF08 -down-> RNF05 : satisfy
+@enduml

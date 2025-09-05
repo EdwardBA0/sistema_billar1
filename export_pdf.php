@@ -11,7 +11,7 @@ use Dompdf\Dompdf;
 try {
     $stmt = $conn->query("SELECT mesa, hora_inicio, hora_fin, duracion, precio FROM reportes");
 
-    // Generar HTML para el PDFfff
+    // Generar HTML para el PDF
     $html = '
     <style>
         body {

@@ -1,0 +1,10 @@
+@startuml
+[*] --> Disponible
+
+Disponible --> Ocupada : Iniciar sesión
+Ocupada --> Pausada : Pausar sesión
+Pausada --> Ocupada : Reanudar sesión
+Ocupada --> Finalizada : Terminar sesión
+Finalizada --> Historial : Guardar datos
+Historial --> Disponible : Liberar mesa
+@enduml
