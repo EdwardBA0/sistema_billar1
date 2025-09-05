@@ -1,0 +1,20 @@
+@startuml
+start
+:Iniciar sesión en el sistema;
+:Seleccionar mesa disponible;
+:Registrar inicio de juego;
+
+repeat
+  :Controlar tiempo de juego;
+  if (¿Interrupción?) then (sí)
+    :Pausar sesión;
+    :Reanudar sesión;
+  endif
+repeat while (¿Juego en curso?) is (sí)
+
+:Finalizar sesión de juego;
+:Calcular costo total;
+:Guardar historial de sesión;
+:Generar reporte diario;
+stop
+@enduml

@@ -1,0 +1,28 @@
+@startuml
+left to right direction
+actor Administrador
+actor Empleado
+actor Cliente
+
+rectangle "Sistema Zona Billar" {
+  usecase "HU-01\nConteo de mesa persistente" as HU1
+  usecase "HU-02\nMejorar interfaz de tiempo" as HU2
+  usecase "HU-03\nCerrar sesión de usuario" as HU3
+  usecase "HU-04\nGestionar usuarios y roles" as HU4
+  usecase "HU-05\nConfigurar tarifas por hora" as HU5
+  usecase "HU-06\nRegistrar inicio/fin de sesión" as HU6
+  usecase "HU-07\nPausar/Reanudar sesión" as HU7
+  usecase "HU-08\nVisualizar reportes diarios" as HU8
+}
+
+Empleado --> HU1
+Empleado --> HU2
+Empleado --> HU3
+Empleado --> HU6
+Empleado --> HU7
+Administrador --> HU4
+Administrador --> HU5
+Administrador --> HU8
+Cliente --> HU6
+Cliente --> HU7
+@enduml
