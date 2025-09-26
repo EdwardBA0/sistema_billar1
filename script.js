@@ -26,7 +26,7 @@ function toggleRental(tableNumber) {
 }
 
 
-function finishRental(tableNumber) {
+function finishRental(tableNumber, autoFinish = true) {
     if (!rentals[tableNumber]) {
         alert("La mesa no está alquilada.");
         return;
@@ -37,14 +37,13 @@ function finishRental(tableNumber) {
     const button = document.querySelector(`#table${tableNumber} button`);
     const tableElement = document.getElementById(`table${tableNumber}`);
 
-    const elapsed = rentals[tableNumber].totalElapsed; // Tiempo total en segundos
-    const startTime = rentals[tableNumber].startTime; // Hora de inicio
-    const endTime = new Date(); // Hora actual como fin
+    const elapsed = rentals[tableNumber].totalElapsed;
+    const startTime = rentals[tableNumber].startTime;
+    const endTime = new Date();
 
-    // Calcular el precio
-    const price = (elapsed / 3600) * precioAlquiler; // Convertir segundos a horas y multiplicar por el precio por hora
+    const price = (elapsed / 3600) * precioAlquiler;
 
-    // Actualizar el estado en la base de datos y guardar en reportes/historial
+    // Guardar en reportes/historial
     fetch('save_rental.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -53,31 +52,71 @@ function finishRental(tableNumber) {
             startTime: startTime.toISOString(),
             endTime: endTime.toISOString(),
             duration: elapsed,
-            cost: price.toFixed(2) // Redondear a 2 decimales
+            cost: price.toFixed(2),
+            cliente_nombre: rentals[tableNumber]?.clienteNombre,
+            cliente_dni: rentals[tableNumber]?.clienteDni
         })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            // Mostrar el precio debajo de la mesa
-            const priceElement = document.createElement('div');
-            priceElement.className = 'price';
-            priceElement.textContent = `Total: S/ ${price.toFixed(2)}`;
-            tableElement.appendChild(priceElement);
-        } else {
-            console.error('Error al guardar el alquiler:', data.error);
-        }
-    })
-    .catch(error => console.error('Error al finalizar el alquiler:', error));
+    });
 
-    // Reiniciar la interfaz
+    // Mostrar el precio debajo de la mesa
+    const priceElement = document.createElement('div');
+    priceElement.className = 'price';
+    priceElement.textContent = `Total: S/ ${price.toFixed(2)}`;
+    tableElement.appendChild(priceElement);
+
+    // Cambiar el color de fondo a verde cuando termina el contador
+    tableElement.style.backgroundColor = "rgba(0, 255, 0, 0.377)";
+
     clearInterval(timers[tableNumber]);
     timerElement.textContent = '';
-    button.textContent = "Alquilar";
     statusElement.textContent = '';
+    button.style.display = "none"; // Oculta el botón "Finalizar"
+
+    // Mostrar botón "Liberar"
+    let liberarBtn = tableElement.querySelector('.liberar-btn');
+    if (!liberarBtn) {
+        liberarBtn = document.createElement('button');
+        liberarBtn.className = 'liberar-btn';
+        liberarBtn.textContent = 'Liberar';
+        liberarBtn.onclick = function () {
+            liberarMesa(tableNumber);
+        };
+        tableElement.appendChild(liberarBtn);
+    }
+    liberarBtn.style.display = "block";
+
     delete rentals[tableNumber];
 }
 
+// Nueva función para liberar la mesa
+function liberarMesa(tableNumber) {
+    const tableElement = document.getElementById(`table${tableNumber}`);
+    const button = tableElement.querySelector("button");
+    const liberarBtn = tableElement.querySelector('.liberar-btn');
+    const priceElement = tableElement.querySelector('.price');
+    const statusElement = tableElement.querySelector('.status');
+    const timerElement = document.getElementById(`timer${tableNumber}`);
+
+    // Liberar en BD
+    fetch('update_mesa.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            tableNumber,
+            estado: 'libre',
+            hora_inicio: null
+        })
+    });
+
+    // Resetear interfaz
+    tableElement.style.backgroundColor = "#20202063";
+    button.textContent = "Alquilar";
+    button.style.display = "block";
+    if (liberarBtn) liberarBtn.style.display = "none";
+    if (priceElement) priceElement.remove();
+    statusElement.textContent = '';
+    timerElement.textContent = '';
+}
 
 
 function formatTime(seconds) {
@@ -95,32 +134,88 @@ function loadConfigurations() {
             }
             return response.json();
         })
-        .then(mesas => {
-            console.log("Datos recibidos del servidor:", mesas); // Para depurar
-            const tablesContainer = document.querySelector('.tables');
-            tablesContainer.innerHTML = ''; // Limpia el contenedor
+        .then(data => {
+            console.log("Datos recibidos del servidor:", data);
 
-            if (!Array.isArray(mesas) || mesas.length === 0) {
+            const tablesContainer = document.querySelector('.tables');
+            tablesContainer.innerHTML = ''; // Limpiar contenedor antes de dibujar
+
+            if (!data.success || !Array.isArray(data.mesas) || data.mesas.length === 0) {
                 tablesContainer.innerHTML = '<p>No hay mesas configuradas.</p>';
                 return;
             }
 
-            mesas.forEach(mesa => {
+            // === Crear dinámicamente las mesas según la configuración ===
+            data.mesas.forEach(mesa => {
                 const tableDiv = document.createElement('div');
+                tableDiv.id = `table${mesa.mesa}`;
                 tableDiv.className = 'table';
-                tableDiv.id = `table${mesa.mesa}`; // Usar mesa.mesa directamente
+
                 tableDiv.innerHTML = `
                     <h3>Mesa ${mesa.mesa}</h3>
                     <img class="img__mesas" src="img/mesaBillar-removebg-preview.png" alt="">
-                    <button onclick="toggleRental(${mesa.mesa})">
-                        ${mesa.estado === 1 ? 'Finalizar' : 'Alquilar'}
-                    </button>
-                    <div class="status">
-                        ${mesa.estado === 1 ? `Alquilada desde: ${formatHoraInicio(mesa.hora_inicio)}` : ''}
-                    </div>
+                    <button onclick="toggleRental(${mesa.mesa})">Alquilar</button>
+                    <div class="status"></div>
                     <div class="timer" id="timer${mesa.mesa}"></div>
                 `;
+
                 tablesContainer.appendChild(tableDiv);
+            });
+
+            // === Aplicar estados desde la BD ===
+            data.mesas.forEach(mesa => {
+                const tableDiv = document.getElementById(`table${mesa.mesa}`);
+                const button = tableDiv.querySelector("button");
+                const statusDiv = tableDiv.querySelector(".status");
+                const timerDiv = tableDiv.querySelector(".timer");
+
+                button.textContent = mesa.alquilada == 1 ? "Finalizar" : "Alquilar";
+                statusDiv.textContent = mesa.alquilada == 1
+                    ? `Alquilada desde: ${formatHoraInicio(mesa.hora_inicio)}`
+                    : '';
+                timerDiv.textContent = '';
+
+                // Si está alquilada, reconstruir el temporizador
+if (mesa.alquilada == 1 && mesa.hora_inicio) {
+    // Usar la fecha y hora completa
+    const startTime = new Date(mesa.hora_inicio.replace(" ", "T"));
+    const now = new Date();
+    let elapsed = Math.floor((now - startTime) / 1000);
+
+    const totalTime = mesa.rental_time ? parseInt(mesa.rental_time) : Infinity;
+    if (elapsed < 0) elapsed = 0;
+
+    rentals[mesa.mesa] = { startTime, rentalTime: totalTime, totalElapsed: elapsed };
+
+    timerDiv.textContent = formatTime(elapsed);
+
+    button.textContent = "Finalizar";
+    statusDiv.textContent = `Alquilada desde: ${startTime.toLocaleTimeString()}`;
+    tableDiv.style.backgroundColor = "rgba(255, 0, 0, 0.377)";
+
+    timers[mesa.mesa] = setInterval(() => {
+        const currentTime = new Date();
+        let seconds = Math.floor((currentTime - startTime) / 1000);
+        if (seconds < 0) seconds = 0;
+
+        rentals[mesa.mesa].totalElapsed = seconds;
+        timerDiv.textContent = formatTime(seconds);
+
+        if (totalTime !== Infinity && seconds >= totalTime) {
+            finishRental(mesa.mesa, true);
+        }
+    }, 1000);
+}
+
+
+
+ else {
+                    if (timers[mesa.mesa]) {
+                        clearInterval(timers[mesa.mesa]);
+                        delete timers[mesa.mesa];
+                    }
+                    delete rentals[mesa.mesa];
+                }
             });
         })
         .catch(error => {
@@ -145,6 +240,12 @@ function formatHoraInicio(horaInicio) {
 let currentTable = null;
 
 function openRentalModal(tableNumber) {
+    document.getElementById('hoursInput').value = 0;
+    document.getElementById('minutesInput').value = 0;
+    document.getElementById('clienteNombre').value = '';
+    document.getElementById('clienteDni').value = '';
+    // ...código para mostrar el modal...
+    document.getElementById('rentalModal').style.display = 'block';
     currentTable = tableNumber;
 
     //  Reseteamos los campos a 0 cada vez que se abre
@@ -166,20 +267,25 @@ document.getElementById('modalCancel').addEventListener('click', closeRentalModa
 document.getElementById('modalAccept').addEventListener('click', () => {
     const hours = parseInt(document.getElementById('hoursInput').value) || 0;
     const minutes = parseInt(document.getElementById('minutesInput').value) || 0;
+    const totalMinutes = (hours * 60) + minutes;
+    const clienteNombre = document.getElementById('clienteNombre').value;
+    const clienteDni = document.getElementById('clienteDni').value;
 
-    if ((!hours && !minutes) || !currentTable) {
-        alert("Por favor ingresa al menos horas o minutos.");
+    if (!clienteNombre || !clienteDni) {
+        alert('Por favor ingrese nombre y DNI del cliente.');
+        return;
+    }
+    if (totalMinutes <= 0) {
+        alert('Ingrese tiempo válido.');
         return;
     }
 
-    const totalSeconds = (hours * 3600) + (minutes * 60);
-
-    startRental(currentTable, totalSeconds);
+    startRental(currentTable, totalMinutes * 60, clienteNombre, clienteDni);
     closeRentalModal();
 });
 
 // === Inicia el alquiler ===
-function startRental(tableNumber, timeInSeconds) {
+function startRental(tableNumber, timeInSeconds, clienteNombre, clienteDni) {
     const statusElement = document.querySelector(`#table${tableNumber} .status`);
     const timerElement = document.getElementById(`timer${tableNumber}`);
     const button = document.querySelector(`#table${tableNumber} button`);
@@ -188,13 +294,22 @@ function startRental(tableNumber, timeInSeconds) {
     const startTime = new Date();
     rentals[tableNumber] = { startTime, rentalTime: timeInSeconds, totalElapsed: 0 };
 
+    // Cuando finalice el alquiler, pasa los datos al backend
+    rentals[tableNumber] = {
+        startTime: new Date(),
+        rentalTime: timeInSeconds,
+        clienteNombre,
+        clienteDni
+    };
+
     fetch('update_mesa.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
             tableNumber,
             estado: 'alquilada',
-            hora_inicio: startTime.toISOString()
+            hora_inicio: startTime.toISOString(),
+            rental_time: timeInSeconds // 🔑 nuevo
         })
     });
 
