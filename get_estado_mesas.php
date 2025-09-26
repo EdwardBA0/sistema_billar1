@@ -2,19 +2,29 @@
 require_once 'db_config.php';
 
 try {
-    // Obtener el número de mesas configuradas
-    $stmt = $conn->prepare("SELECT valor FROM configuracion WHERE nombre = 'num_mesas'");
+    // 1. Obtener configuraciones
+    $stmt = $conn->prepare("SELECT nombre, valor FROM configuracion");
     $stmt->execute();
-    $numMesas = (int) $stmt->fetchColumn();
 
-    // Verificar si la tabla tiene suficientes registros
+    $configurations = [];
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        $configurations[$row['nombre']] = $row['valor'];
+    }
+
+    $numMesas = isset($configurations['num_mesas']) ? (int)$configurations['num_mesas'] : 6;
+    $precioHora = isset($configurations['precio_hora']) ? (float)$configurations['precio_hora'] : 6.00;
+
+    // 2. Contar registros en estado_mesas
     $stmt = $conn->query("SELECT COUNT(*) FROM estado_mesas");
     $mesaCount = (int) $stmt->fetchColumn();
 
-    // Agregar o eliminar mesas según sea necesario
+    // 3. Sincronizar cantidad de mesas
     if ($mesaCount < $numMesas) {
         for ($i = $mesaCount + 1; $i <= $numMesas; $i++) {
-            $stmt = $conn->prepare("INSERT INTO estado_mesas (mesa, alquilada, hora_inicio) VALUES (:mesa, 0, NULL)");
+            $stmt = $conn->prepare("
+                INSERT INTO estado_mesas (mesa, alquilada, hora_inicio)
+                VALUES (:mesa, 0, NULL)
+            ");
             $stmt->execute([':mesa' => $i]);
         }
     } elseif ($mesaCount > $numMesas) {
@@ -22,12 +32,23 @@ try {
         $stmt->execute([':mesa' => $numMesas]);
     }
 
-    // Recuperar el estado actualizado de las mesas
-    $stmt = $conn->query("SELECT mesa, alquilada AS estado, hora_inicio FROM estado_mesas");
+    // 4. Obtener estado actualizado
+   $stmt = $conn->query("SELECT mesa, alquilada, hora_inicio, rental_time FROM estado_mesas ORDER BY mesa ASC");
+
     $mesas = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    echo json_encode($mesas);
+    // 5. Respuesta JSON con todo
+    echo json_encode([
+        'success' => true,
+        'numTables' => $numMesas,
+        'pricePerHour' => $precioHora,
+        'mesas' => $mesas
+    ]);
+
 } catch (PDOException $e) {
-    echo json_encode(['error' => $e->getMessage()]);
+    echo json_encode([
+        'success' => false,
+        'error' => $e->getMessage()
+    ]);
 }
 ?>

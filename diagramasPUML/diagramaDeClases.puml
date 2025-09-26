@@ -1,0 +1,55 @@
+@startuml
+!theme plain
+
+class Configuracion {
+  - id : int
+  - nombre : string
+  - valor : string
+  --
+  + getValor(nombre) : string
+  + setValor(nombre, valor) : void
+}
+
+class Mesa {
+  - id : int
+  - numero : int
+  - alquilada : bool
+  - hora_inicio : datetime
+  - rental_time : int
+  --
+  + alquilar(hora_inicio, rental_time) : void
+  + liberar() : void
+  + estaAlquilada() : bool
+}
+
+class Reporte {
+  - id : int
+  - mesa : string
+  - hora_inicio : time
+  - hora_fin : time
+  - duracion : time
+  - precio : decimal
+  - cliente_nombre : string
+  - cliente_dni : string
+  --
+  + generar(mesa, hora_inicio, hora_fin, duracion, precio, cliente_nombre, cliente_dni) : void
+  + getHistorialMesa(mesa) : List<Reporte>
+}
+
+class Usuario {
+  - id : int
+  - username : string
+  - password : string
+  - email : string
+  - role : string
+  --
+  + login(username, password) : bool
+  + esAdmin() : bool
+  + esTrabajador() : bool
+}
+
+Configuracion "1" -- "N" Mesa : configura >
+Mesa "1" -- "N" Reporte : genera >
+Usuario "1" -- "N" Reporte : registra >
+
+@enduml

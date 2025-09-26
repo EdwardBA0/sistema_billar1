@@ -1,0 +1,44 @@
+@startuml
+!theme plain
+
+entity configuracion {
+  * id : int <<PK>>
+  --
+  nombre : varchar(50)
+  valor : varchar(255)
+}
+
+entity estado_mesas {
+  * id : int <<PK>>
+  --
+  mesa : int <<UNIQUE>>
+  alquilada : tinyint(1)
+  hora_inicio : datetime
+  rental_time : int
+}
+
+entity reportes {
+  * id : int <<PK>>
+  --
+  mesa : int
+  hora_inicio : time
+  hora_fin : time
+  duracion : time
+  precio : decimal(10,2)
+  // opcional
+  usuario_id : int
+}
+
+entity usuarios {
+  * id : int <<PK>>
+  --
+  username : varchar(50) <<UNIQUE>>
+  password : varchar(255)
+  email : varchar(100) <<UNIQUE>>
+  role : enum('admin','trabajador')
+}
+
+' Relaciones
+estado_mesas::mesa ||--o{ reportes::mesa
+usuarios::id ||--o{ reportes::usuario_id
+@enduml

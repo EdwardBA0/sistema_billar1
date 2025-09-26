@@ -38,7 +38,8 @@ try {
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <nav class="nav">
+    <nav class="nav expanded" id="sidebar">
+        <button class="nav__toggle" onclick="toggleSidebar()">&#9776;</button>
         <div class="usuario">
             <img class="icon-user" src="Icons/user_icon.png" alt="icono usuario">
             <div class="texts-user">
@@ -68,11 +69,20 @@ try {
                 </li>
             <?php } ?>
             <?php if ($role == 'admin') { ?>
+                <li class="nav_li">
+                    <a href="dashboard.php" class="cta">
+                        <img class="icons" src="Icons/dashboard_icon.png" alt="icono dashboard">
+                        Dashboard
+                    </a>
+                </li>
                 <li class="nav_li">   
                     <a class="cta" href="configuracion.php">
                         <img class="icons" src="Icons/settings_icon.png" alt="icono configuración">
                         Configuración
+                        
                     </a>
+                    <br>
+                    <br>
                 </li>
             <?php } ?>
         </ul>
@@ -97,7 +107,7 @@ try {
         </div>
     </main>
     <!-- Modal para ingresar tiempo -->
-    <div id="rentalModal" class="modal">
+    <div id="rentalModal" class="modal" style="display:none;">
         <div class="modal-content">
             <div class="sub-modal">
                <h2>ALQUILAR MESA</h2>
@@ -110,6 +120,13 @@ try {
                     <input type="number" id="minutesInput" min="0" max="59" value="0">
                </div>
 
+               <!-- NUEVO: Campos para cliente -->
+               <div style="margin-top: 30px;">
+                    <label for="clienteNombre">Nombre del cliente:</label>
+                    <input type="text" id="clienteNombre" required>
+                    <label for="clienteDni">DNI:</label>
+                    <input type="text" id="clienteDni" required>
+               </div>
             </div>
 
             <div class="modal-actions">
@@ -119,5 +136,10 @@ try {
         </div>
     </div>
     <script src="script.js"></script>
+    <script>
+function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('expanded');
+}
+</script>
 </body>
 </html>
