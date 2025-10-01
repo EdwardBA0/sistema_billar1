@@ -25,7 +25,7 @@ try {
         $num_mesas = 6;
     }
 } catch (PDOException $e) {
-    die("Error al obtener la configuración: " . $e->getMessage());
+    die("Error al obtener la configuración: s" . $e->getMessage());
 }
 ?>
 
