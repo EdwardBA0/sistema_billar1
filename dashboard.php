@@ -70,13 +70,15 @@ $dinero_por_dia = $stmt5->fetchAll(PDO::FETCH_ASSOC);
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Dashboard - Clientes</title>
+    <title>Dashboard de Clientes y Mesas</title>
     <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <div class="dashboard-container">
         <h1>Dashboard de Clientes y Mesas</h1>
         <h2>Clientes más frecuentes</h2>
+        <canvas id="clientesFrecuentesChart" width="400" height="200"></canvas>
         <table>
             <tr>
                 <th>Nombre</th>
@@ -91,22 +93,8 @@ $dinero_por_dia = $stmt5->fetchAll(PDO::FETCH_ASSOC);
             </tr>
             <?php endforeach; ?>
         </table>
-        <h2>Clientes nuevos (últimos registros únicos)</h2>
-        <table>
-            <tr>
-                <th>Nombre</th>
-                <th>DNI</th>
-                <th>Última vez</th>
-            </tr>
-            <?php foreach ($nuevos as $n): ?>
-            <tr>
-                <td><?= htmlspecialchars($n['cliente_nombre']) ?></td>
-                <td><?= htmlspecialchars($n['cliente_dni']) ?></td>
-                <td><?= $n['ultima_vez'] ?></td>
-            </tr>
-            <?php endforeach; ?>
-        </table>
         <h2>Mesas más usadas este mes</h2>
+        <canvas id="mesasUsadasChart" width="400" height="200"></canvas>
         <table>
             <tr>
                 <th>Mesa</th>
@@ -119,20 +107,8 @@ $dinero_por_dia = $stmt5->fetchAll(PDO::FETCH_ASSOC);
             </tr>
             <?php endforeach; ?>
         </table>
-        <h2>Mesas menos usadas este mes</h2>
-        <table>
-            <tr>
-                <th>Mesa</th>
-                <th>Usos</th>
-            </tr>
-            <?php foreach ($mesas_menos_usadas as $m): ?>
-            <tr>
-                <td><?= htmlspecialchars($m['mesa']) ?></td>
-                <td><?= $m['usos'] ?></td>
-            </tr>
-            <?php endforeach; ?>
-        </table>
         <h2>Dinero ganado por día (últimos 30 días)</h2>
+        <canvas id="dineroPorDiaChart" width="400" height="200"></canvas>
         <table>
             <tr>
                 <th>Fecha</th>
@@ -146,10 +122,73 @@ $dinero_por_dia = $stmt5->fetchAll(PDO::FETCH_ASSOC);
             <?php endforeach; ?>
         </table>
     </div>
+    <script>
+        // Datos desde PHP
+        const clientesLabels = <?= json_encode(array_map(fn($c) => $c['cliente_nombre'] . ' (' . $c['cliente_dni'] . ')', $clientes)) ?>;
+        const clientesData = <?= json_encode(array_map(fn($c) => (int)$c['veces'], $clientes)) ?>;
+
+        const mesasLabels = <?= json_encode(array_map(fn($m) => $m['mesa'], $mesas_mas_usadas)) ?>;
+        const mesasData = <?= json_encode(array_map(fn($m) => (int)$m['usos'], $mesas_mas_usadas)) ?>;
+
+        const dineroLabels = <?= json_encode(array_map(fn($d) => $d['fecha'], $dinero_por_dia)) ?>;
+        const dineroData = <?= json_encode(array_map(fn($d) => (float)$d['total'], $dinero_por_dia)) ?>;
+
+        // Gráfico de pastel para clientes más frecuentes
+        new Chart(document.getElementById('clientesFrecuentesChart'), {
+            type: 'pie',
+            data: {
+                labels: clientesLabels,
+                datasets: [{
+                    data: clientesData,
+                    backgroundColor: [
+                        '#2980b9', '#27ae60', '#e67e22', '#8e44ad', '#c0392b',
+                        '#16a085', '#f39c12', '#d35400', '#2c3e50', '#7f8c8d'
+                    ]
+                }]
+            }
+        });
+
+        // Gráfico de barras para mesas más usadas
+        new Chart(document.getElementById('mesasUsadasChart'), {
+            type: 'bar',
+            data: {
+                labels: mesasLabels,
+                datasets: [{
+                    label: 'Usos',
+                    data: mesasData,
+                    backgroundColor: '#2980b9'
+                }]
+            }
+        });
+
+        // Gráfico de líneas para dinero por día
+        new Chart(document.getElementById('dineroPorDiaChart'), {
+            type: 'line',
+            data: {
+                labels: dineroLabels,
+                datasets: [{
+                    label: 'Total S/',
+                    data: dineroData,
+                    borderColor: '#27ae60',
+                    backgroundColor: 'rgba(39,174,96,0.2)',
+                    fill: true
+                }]
+            }
+        });
+    </script>
+    <style>
+        body {
+            background: #eaf3fa; /* Un azul claro, puedes cambiarlo */
+        }
+        .dashboard-container {
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 4px 24px rgba(44, 62, 80, 0.13);
+            padding: 40px 32px;
+            margin: 40px auto;
+            max-width: 950px;
+        }
+    </style>
 </body>
 </html>
 
-<label for="clienteNombre">Nombre del cliente:</label>
-<input type="text" id="clienteNombre" required>
-<label for="clienteDni">DNI:</label>
-<input type="text" id="clienteDni" required>
